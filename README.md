@@ -46,13 +46,15 @@ $ Сетка |   |=> const mesh = new THREE.Mesh(geometry, material) // Сетк
 Перспективная камера воспринимает сцену от угла поля зрения - чем дальше объект - тем он меньше, то есть как в реально жизне - приблежая, мы имеем, большой формат объекта
 
 
-```const sizes = {
+```
+const sizes = {
 	width: 600,
 	height: 600
 }
 
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, fav)
-scene.add(camera)```
+scene.add(camera)
+```
 
 
 # -> Отрисовщик :
@@ -62,7 +64,8 @@ scene.add(camera)```
 * Использует WebGL
 
 
-```const canvas = document.querySelector('canvas') -> если мы не создаем через threejs
+```
+const canvas = document.querySelector('canvas') -> если мы не создаем через threejs
 const rendered = new THREE.WebGLRenderer({ antialias: true, canvas})
 
 rendered.render(scene, camera)
@@ -74,7 +77,8 @@ canvas {
 	width: 100%;
 	height: 100%;
 	display: block;
-}```
+}
+```
 
 
 Также в самой сцене задать функцию, которая при ресайзе - оценивает соотношение (aspect) => {
