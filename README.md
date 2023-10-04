@@ -25,7 +25,7 @@
 
 ```
 		|-- Геометрия -> const geometry = new THREE.BoxGeometry(width, height, depth)
-$ Сетка |   |=> const mesh = new THREE.Mesh(geometry, material) // Сетка - это меш
+$ Сетка 	|   |=> const mesh = new THREE.Mesh(geometry, material) // Сетка - это меш
 		|-- Материал  -> const material = new THREE.MeshBasicMaterial({color : '...'})
 ```
 
