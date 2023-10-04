@@ -23,11 +23,11 @@
 
 Для создания простого примитивного геометрического куба - нужно создать сущность сетки.
 
-
+```
 		|-- Геометрия -> const geometry = new THREE.BoxGeometry(width, height, depth)
 $ Сетка |   |=> const mesh = new THREE.Mesh(geometry, material) // Сетка - это меш
 		|-- Материал  -> const material = new THREE.MeshBasicMaterial({color : '...'})
-
+```
 
 После создания, нужно добавить на сцену - в наш контейнер, для отрисовки
 
