@@ -32,10 +32,10 @@ $ Сетка |   |=> const mesh = new THREE.Mesh(geometry, material) // Сетк
 После создания, нужно добавить на сцену - в наш контейнер, для отрисовки
 
 
-							```scene.add(mesh)```
+							scene.add(mesh)
 
 
-# -> Камера : 
+# *-> Камера : 
 
 * Не видно на странице - все будет видно от лица камеры
 * Взгляд на сцену
@@ -57,7 +57,7 @@ scene.add(camera)
 ```
 
 
-# -> Отрисовщик :
+# *-> Отрисовщик :
 
 * Рендерит сцену от лица камеры
 * Результат помещает на canvas
@@ -82,27 +82,30 @@ canvas {
 
 
 Также в самой сцене задать функцию, которая при ресайзе - оценивает соотношение (aspect) => {
-	```const isResizeWindow = (rendered) => {
-		const PixelAspect = window.devicePixelRatio
+
+	```
+ 	const isResizeWindow = (rendered) => {
+	const PixelAspect = window.devicePixelRatio
 		
-		 const canvas = rendered.domElement;
-   		const w = (canvas.clientWidth * pixelRatio) | 0;
-   		const h = (canvas.clientHeight * pixelRatio) | 0;
+	const canvas = rendered.domElement;
+   	const w = (canvas.clientWidth * pixelRatio) | 0;
+   	const h = (canvas.clientHeight * pixelRatio) | 0;
 
-   		const isResize = canvas.width !== w || canvas.height !== h;
+   	const isResize = canvas.width !== w || canvas.height !== h;
 
-   		if (isResize) {
-   		  rendered.setSize(w, h, false);
-   		}
+   	if (isResize) {
+   		rendered.setSize(w, h, false);
+   	}
 
-   		return isResize;
+   	 return isResize;
 	}
 
 	 if (isResizeWindow(rendered)) {
       const canvas = rendered.domElement;
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
       camera.updateProjectionMatrix();
-    }```
+    }
+    ```
 
 }
 
@@ -120,8 +123,8 @@ canvas {
 
 Координаты в THREEjs -> 
 
-          /y\
-           |
+                  /y\
+                   |
 		   |
 		   |_______\ x
 		  /        /
@@ -156,7 +159,7 @@ const axesHelper = new THREE.AxesHelper(3);
 
 При scale можно выводить значения в отрицательное значение , но приведет к ошибке, по скольку оси не будут орентированы в логическом направление
 
-# Вращение - rotation | quaternion
+# *-> Вращение - rotation | quaternion
 
 x - y - z, представлены не от vector3 , а от класса auler
 
@@ -205,7 +208,7 @@ scene.add(group)
 
 А теперь можно масштабировать эту группу, чтобы менять все scale - кубов, мешей
 
-----------------------------------|==> Анимации <==|----------------------------------------------------------------------------
+----------------------------------|==> Анимации <==|----------------------------------
 Чтобы сделать анимацию нужно создать функцию , где будет вызываться requestAnimationFrame, в эту функцию, чтобы было все видно, мы должно дописать rendered.render(scene, camera). Отсюда и следует беда, такая как, чем больше Gz , тем быстрее будет анимация двигаться, а чем меньше Gz = тем медленее будет идти анимация
 
 
@@ -336,8 +339,7 @@ scene.add(group)
 
 ```
 
-
-=====================> | camera | <=============================
+=====================> | camera | <=====================
 
 Для более сложных и крутых сцене
 Class Camera extends THREEjs - это абстрактный класс, не должны использовать его напрямую, но вы можете наследовать от него доступ к общим свойствам и методам.
