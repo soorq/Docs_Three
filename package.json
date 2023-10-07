@@ -14,7 +14,11 @@
     "vite": "^4.4.5"
   },
   "dependencies": {
+    "glslify-loader": "^2.0.0",
     "three": "^0.157.0",
-    "threejs-toys": "^0.0.8"
+    "threejs-toys": "^0.0.8",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
   }
 }

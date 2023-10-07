@@ -1,200 +1,156 @@
 import * as THREE from "three";
-import { isResize } from "./helpers/isResize";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-// import { animateBox } from "./helpers/animate";
 
-const fov = 55,
-  aspect = 2,
-  near = 1,
-  far = 5,
-  width = window.innerWidth,
-  height = window.innerHeight,
-  w = 1,
-  h = 1,
-  d = 1,
-  color = 0x44aa38,
-  intesivity = 2,
-  pixelDevice = window.devicePixelRatio;
+const _CONTAINER_CANVAS = document.querySelector("#app");
+let _canvas = document.createElement("canvas");
+_CONTAINER_CANVAS.appendChild(_canvas);
 
-const canvas = document.querySelector(".canvas-rend");
+let car;
 
-function init() {
-  const clock = new THREE.Clock();
+let mouseKey = {
+  mouseX: window.innerWidth / 2,
+  mouseY: window.innerHeight / 2,
+};
 
-  const axesHelper = new THREE.AxesHelper(3);
-  const renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    canvas,
-  });
-  const loader = new THREE.TextureLoader();
+const scene = new THREE.Scene();
 
-  const texture = loader.load("src/three/assets/TextureEarth.jpeg");
-  texture.colorSpace = THREE.SRGBColorSpace;
+const camera = new THREE.PerspectiveCamera(
+  65,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  5
+);
 
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFShadowMap;
+const TLoader = new THREE.TextureLoader();
+const texture = TLoader.load("src/three/assets/TextureEarth.jpeg");
+const roug = TLoader.load("src/three/assets/terrainroughness.jpg");
 
-  // const light = new THREE.DirectionalLight(color, intesivity);
-
-  const geometry = new THREE.IcosahedronGeometry(1, 15);
-  const material = new THREE.MeshLambertMaterial({
-    //map: texture,
-    //envMap: scene.background,
-    //combine: THREE.MixOperation,
-    fog: true,
-    reflectivity: 0.5,
-    map: texture,
-    // wireframe: true,
-  });
-
-  const fgeo = new THREE.PlaneGeometry(40, 40);
-  const fmat = new THREE.ShadowMaterial({
-    opacity: 1,
-    color: 0x212121,
-    fog: true,
-    // side: THREE.LightShadow,
-  });
-  const fmes = new THREE.Mesh(fgeo, fmat);
-  fmes.position.y = -1.2;
-
-  fmes.rotateX(-Math.PI / 2);
-  fmes.receiveShadow = true;
-
-  const mesh = new THREE.Mesh(geometry, material);
-
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-
-  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-  const scene = new THREE.Scene();
-
-  const orbitControls = new OrbitControls(camera, renderer.domElement);
-
-  scene.add(fmes);
-  // orbitControls.target.set(-1, 0, -1);
-  orbitControls.position0.set(4, 3, 2);
-  orbitControls.maxDistance = 4;
-  orbitControls.enablePan = false;
-  orbitControls.maxZoom = 0;
-  orbitControls.minZoom = 0;
-  // orbitControls.maxAzimuthAngle = 0;
-  orbitControls.maxPolarAngle = 4;
-  console.log(orbitControls);
-
-  // orbitControls.target.set(0, 0, 5);
-  // orbitControls.rotateSpeed = 2;
-
-  // scene.background = new THREE.Color(0x312222);
-
-  isResize({ renderer, canvas, width, height });
-  camera.lookAt(mesh);
-  scene.add(mesh);
-  scene.add(axesHelper);
-
-  // mesh.position.set(1, 1, 1);
-  camera.position.set(0, 0, 5);
-
-  // Туман
-
-  // {
-  //   const color = 0xffffff; // white
-  //   const near = 10;
-  //   const far = 100;
-  //   scene.fog = new THREE.Fog(color, near, far);
-  // }
-
-  {
-    const near = 1;
-    const far = 5.5;
-    const color = "lightblue";
-    scene.fog = new THREE.Fog(color, near, far);
-    scene.background = new THREE.Color(color);
+const loaderG = new GLTFLoader();
+loaderG.load(
+  "src/three/models/car/scene.gltf",
+  (gltf) => {
+    car = gltf.scene;
+    car.scale.set(0.5, 0.5, 0.5);
+    scene.add(car);
+  },
+  (xhr) => {
+    console.log((xhr.loaded / xhr.total) * 100, "% loaded");
+  },
+  (err) => {
+    console.warn(err);
   }
+);
 
-  const createLights = () => {
-    const a_light = new THREE.AmbientLight(0xffffff, 0.5);
-    const p_light = new THREE.SpotLight(0xffffff, 1, 100, Math.PI / 8, 1, 0.01);
-    p_light.position.set(-2, 3, 5);
-    p_light.castShadow = true;
-    p_light.shadow.mapSize.width = p_light.shadow.mapSize.height = 2048;
-    p_light.shadow.camera.near = 0.5;
-    p_light.shadow.camera.far = 500;
+const ground = new THREE.PlaneGeometry(40, 40, 1, 1);
+const g_material = new THREE.MeshPhongMaterial({
+  color: 0x232211,
+  reflectivity: 0.2,
+  fog: true,
+  emissive: new THREE.Color(0x222222),
+  emissiveIntensity: 1,
+  refractionRatio: 1,
+  lightMap: roug,
+  lightMapIntensity: 0.5,
+});
 
-    const spotLightHelper = new THREE.SpotLightHelper(p_light);
+const g_me = new THREE.Mesh(ground, g_material);
 
-    return p_light;
-  };
+g_me.rotation.x = -Math.PI * 0.5;
+g_me.position.set(-0.05, -0.05, -0.05);
 
-  const resizeD = () => {
-    const isResizing = canvas.width !== width || canvas.height !== height;
-    console.log("innerResize", canvas.width);
+const _renderer = new THREE.WebGLRenderer({
+  antialias: true,
+  canvas: _canvas,
+});
 
-    if (isResizing) {
-      renderer.setSize(width, height, updateStyle);
-    }
+_renderer.setPixelRatio(window.devicePixelRatio);
+_renderer.shadowMap.enabled = true;
+_renderer.shadowMap.type = THREE.PCFShadowMap;
+_renderer.setSize(window.innerWidth, window.innerHeight);
 
-    // return isResizing;
-  };
+const control = new OrbitControls(camera, _canvas);
+control.enabled = true;
+control.enablePan = false;
+control.maxPolarAngle = Math.PI / 2;
+control.enableDamping = true;
+control.enableZoom = true;
+control.dampingFactor = 0.2;
+control.rotateSpeed = 3;
+control.target.set(0, 0, 0);
+control.minDistance = 1.5;
+control.maxDistance = 3;
+control.autoRotate = true;
+control.rotateSpeed = 0.5;
+control.autoRotateSpeed = 1;
+control.minZoom = 2;
+control.minPolarAngle = Math.PI / 4;
 
-  if (resizeD()) {
-    camera.aspect = window.clientWidth / window.clientHeight;
-    camera.updateProjectionMatrix();
-  }
+/*
+ * @declare { Light}
+ */
+// const topLight = new THREE.DirectionalLight(0xf44336, 1);
+// topLight.position.set(0, 1, 0);
+// topLight.castShadow = true;
 
-  scene.add(createLights());
+// const AmbitLeft = new THREE.AmbientLight(0x4c1130, 3);
+// const AmbitRight = new THREE.AmbientLight(0x741b47, 3);
 
-  function resizeRendererToDisplaySize(renderer) {
-    const canvas = renderer.domElement;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-    const needResize = canvas.width !== width || canvas.height !== height;
-    if (needResize) {
-      renderer.setSize(width, height, false);
-    }
+// AmbitLeft.position.x = Math.cos(Math.PI);
+// AmbitRight.position.x = -Math.cos(Math.PI);
 
-    return needResize;
-  }
+const SpotLeft = new THREE.SpotLight(0xba99aa, 5);
+SpotLeft.position.set(5, 4, 0);
+SpotLeft.angle = 3;
+SpotLeft.penumbra = 0.5;
+SpotLeft.castShadow = true;
+SpotLeft.shadow.bias = -0.002;
 
-  let renderRequested = false;
+const SpotRight = new THREE.SpotLight(0x99abaa, 7);
+SpotRight.position.set(-5, 4, 0);
+SpotRight.angle = 3;
+SpotRight.penumbra = 0.5;
+SpotRight.castShadow = true;
+SpotRight.shadow.bias = -0.002;
 
-  const AnimateBox = () => {
-    renderRequested = undefined;
+const helper = new THREE.CameraHelper(SpotLeft.shadow.camera);
+scene.add(helper);
 
-    // width = window.innerWidth;
-    // height = window.innerHeight
+camera.position.set(6, 2, 0);
+camera.lookAt(scene.position);
 
-    if (resizeRendererToDisplaySize(renderer)) {
-      const canvas = renderer.domElement;
-      camera.aspect = canvas.clientWidth / canvas.clientHeight;
-      camera.updateProjectionMatrix();
-    }
+/*
+ * @declare scene()
+ */
 
-    const alepsedTime = clock.getElapsedTime();
+// scene.background = new THREE.Color(0x3f3a3a);
+scene.add(g_me);
+scene.background = new THREE.Color(0x232122);
+scene.fog = new THREE.Fog(0xcccccc);
+// scene.add(topLight);
+scene.add(SpotLeft);
+scene.add(SpotRight);
 
-    // console.log(camera.position);
-    mesh.rotation.x = Math.cos(alepsedTime);
-    mesh.rotation.y = Math.sin(alepsedTime);
-    camera.position.y = Math.cos(alepsedTime);
-    camera.position.x = Math.sin(alepsedTime);
+// scene.add(AmbitLeft);
+// scene.add(AmbitRight);
 
-    // camera.lookAt(mesh);
-    orbitControls.update();
-    renderer.render(scene, camera);
-    requestAnimationFrame(AnimateBox);
-  };
+const animate = () => {
+  requestAnimationFrame(animate);
 
-  AnimateBox();
+  _renderer.render(scene, camera);
+  control.update();
+};
 
-  function requestRenderIfNotRequested() {
-    if (!renderRequested) {
-      renderRequested = true;
-      requestAnimationFrame(AnimateBox);
-      console.log("2");
-    }
-  }
-  // orbitControls.addEventListener("change", requestRenderIfNotRequested);
-  window.addEventListener("resize", requestRenderIfNotRequested);
-}
-init();
-// const _CANVAS = document.querySelector(".canvas-animate")!;
-// _CANVAS?.appendChild(renderer.domElement);
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  _renderer.setSize(window.innerWidth, window.innerHeight);
+  // renderer.render(scene, camera);
+});
+
+document.onmousemove = (e) => {
+  mouseKey.mouseX = e.clientX;
+  mouseKey.mouseY = e.clientY;
+};
+
+animate();
